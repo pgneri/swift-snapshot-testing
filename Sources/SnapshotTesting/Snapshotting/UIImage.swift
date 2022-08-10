@@ -87,7 +87,7 @@ private func compare(_ old: UIImage, _ new: UIImage, precision: Float, subpixelT
   guard oldCgImage.height != 0 else { return false }
   guard newCgImage.height != 0 else { return false }
   guard oldCgImage.height == newCgImage.height else { return false }
-  
+
   let byteCount = imageContextBytesPerPixel * oldCgImage.width * oldCgImage.height
   var oldBytes = [UInt8](repeating: 0, count: byteCount)
   guard let oldContext = context(for: oldCgImage, data: &oldBytes) else { return false }
@@ -119,18 +119,18 @@ private func compare(_ old: UIImage, _ new: UIImage, precision: Float, subpixelT
 }
 
 private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil) -> CGContext? {
-   let bytesPerRow = cgImage.width * imageContextBytesPerPixel
-   guard
-     let colorSpace = imageContextColorSpace,
-     let context = CGContext(
-       data: data,
-       width: cgImage.width,
-       height: cgImage.height,
-       bitsPerComponent: imageContextBitsPerComponent,
-       bytesPerRow: bytesPerRow,
-       space: colorSpace,
-       bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-     )
+  let bytesPerRow = cgImage.width * imageContextBytesPerPixel
+  guard
+    let colorSpace = imageContextColorSpace,
+    let context = CGContext(
+      data: data,
+      width: cgImage.width,
+      height: cgImage.height,
+      bitsPerComponent: imageContextBitsPerComponent,
+      bytesPerRow: bytesPerRow,
+      space: colorSpace,
+      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )
     else { return nil }
 
   context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
@@ -140,7 +140,8 @@ private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil)
 private func diff(_ old: UIImage, _ new: UIImage) -> UIImage {
   let width = max(old.size.width, new.size.width)
   let height = max(old.size.height, new.size.height)
-  UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: height), true, 0)
+  let scale = max(old.scale, new.scale)
+  UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: height), true, scale)
   new.draw(at: .zero)
   old.draw(at: .zero, blendMode: .difference, alpha: 1)
   let differenceImage = UIGraphicsGetImageFromCurrentImageContext()!
